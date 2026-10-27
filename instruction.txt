@@ -1,0 +1,225 @@
+AI 4200 Project 1: Step-by-step instructions
+
+Goal
+----
+Improve and analyze the residual MLP for MNIST, CIFAR-10, and ImageNet 32x32.
+The grade emphasizes your experiments and explanations, not just the final
+accuracy. Keep the required train() and predict() interface working throughout.
+
+1. Get oriented
+---------------
+- Read README.md and this assignment guide.
+- The starter code is in src/residual_mlp_baseline/model.py and
+  src/residual_mlp_baseline/train.py. The current code is the intentionally
+  simple baseline: 30 residual blocks, tanh, LayerNorm, Xavier initialization,
+  and plain SGD.
+- Keep project1_harness.ipynb as the official end-to-end grading check. Make
+  experimental changes in the package code (or your own analysis code).
+
+2. Establish the baseline
+-------------------------
+- Run every setup and evaluation cell in project1_harness.ipynb once before
+  changing the model. Record the test accuracy for all three tasks, along with
+  the training time and loss output.
+- The first run downloads and converts datasets. ImageNet 32x32 takes
+  substantial time and disk space (about 0.7 GB to download and about 4 GB
+  saved). Keep the generated data/ folder locally, but do not commit it.
+- The harness's torch.cuda.empty_cache() line only asks PyTorch to release
+  unused cached GPU memory; it is not a model change or a required edit.
+
+3. Set up your submission repository
+------------------------------------
+- Fork the instructor's repository on GitHub and work in your own fork.
+- In the harness's "Your submission" setup cell, set PACKAGE_URL to your fork's
+  git URL, IMPORT_NAME to the package directory under src, LEADERBOARD_ALIAS
+  to a nickname (or "" to opt out), and SECTION to "4000" or "5000".
+- Ensure your own repository is public and installable with:
+  pip install git+https://github.com/<you>/<your-repo>.git
+
+4. Create and maintain your development log
+-------------------------------------------
+- Create LOG.md at the repository root.
+- Add an entry whenever you change the model, training recipe, or data pipeline,
+  including changes that fail, reduce accuracy, or cause a crash.
+- Before each run, write what you changed, why, and what you expect to happen.
+  Afterward, record the result: accuracy, training time, loss behavior, whether
+  your expectation was right, and what you plan to try next.
+- Include enough settings or a commit reference to reproduce each experiment.
+- Use a validation split taken only from the training data to choose settings.
+  Do not tune on test accuracy; reserve the harness test results for final
+  evaluation.
+
+5. Improve the models through experiments
+-----------------------------------------
+- Work through MNIST, CIFAR-10, and ImageNet 32x32. You may use a different
+  model and training recipe for each task.
+- Make one well-motivated change at a time where practical. Compare with the
+  baseline and your prior runs, then use the results to choose the next change.
+- Possible experiment knobs (keep a clear record of the exact setting for each
+  run):
+  * Architecture and capacity: number of residual blocks/depth, width, hidden
+    expansion size, number/arrangement of linear layers, and task-specific
+    architectures.
+  * Allowed layer components: linear layers, activation functions (for
+    example tanh, ReLU, or GELU), normalization (for example LayerNorm or
+    BatchNorm), and residual/skip connections.
+  * Initialization: initialization method, bias initialization, and the scale
+    of weights in residual branches.
+  * Optimization: optimizer (for example SGD, Adam, or AdamW), learning rate,
+    momentum/betas, batch size, and gradient clipping.
+  * Learning-rate schedule: constant rate, warmup, step decay, or cosine decay;
+    also experiment with schedule duration and minimum rate.
+  * Loss and regularization: cross-entropy settings, label smoothing, weight
+    decay, dropout, and other regularizers that do not introduce a disallowed
+    layer type.
+  * Training procedure: number of epochs, reproducible random seed, and
+    training/validation split. Compare loss and validation accuracy over time
+    to tell underfitting from overfitting.
+  * Input handling: normalization/scaling, flattening strategy, splitting
+    images into patches or groups of pixels, and allowed linear mixing of
+    information across image positions.
+  * Data augmentation: task-appropriate transformations of training examples,
+    such as small translations/rotations for MNIST or random crops/flips for
+    color images. Apply augmentation only to training examples.
+  * Inference: chunk size and test-time augmentation, provided the result is
+    still produced by one trained model and returns valid class probabilities.
+- A useful experiment sequence is: compare optimizer and schedule separately;
+  tune learning rate and weight decay; try augmentation; then investigate
+  activation, initialization, width/depth, and input representation. This is
+  only a suggested order, not a required recipe. Choose experiments based on
+  evidence from your validation results and training curves.
+- Change one main factor at a time when possible. Use the same seed, validation
+  split, epoch budget, and evaluation procedure for fair comparisons. If you
+  combine changes, explain why and make clear that their individual effects
+  cannot be isolated.
+- The assignment requires the network to remain a residual MLP. Do not use
+  convolutions, recurrent layers, or other disallowed modality-specific layer
+  types; ensembles; pretrained weights; distillation; extra data; or saved
+  weights. train() must build and train one model from scratch using only the
+  data it receives. If you are unsure whether a technique is allowed, ask the
+  instructor before using it.
+- Keep the required function names and arguments unchanged:
+  model = train(task, X_train, y_train, seed=0, device="cuda")
+  probs = predict(model, X_test)
+- predict() must return probabilities with shape (number of examples,
+  number of classes); each row must sum to 1.
+- Explain in the report how and why any technique beyond class basics works.
+
+6. Analyze ImageNet training dynamics
+-------------------------------------
+- Keep the measurement/plotting code in the repository, such as in analysis.py
+  or a separate notebook. Do not slow down graded train(); keep analysis outside
+  train() or behind an option that is off by default.
+- Install the optional plotting tools once with:
+  pip install -e ".[analysis]"
+- To compare the starter optimizer with the current recipe on a training-only
+  validation split and produce loss curves, run:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --compare-task cifar10
+- To isolate the learning-rate schedule, compare constant-rate AdamW against
+  AdamW with cosine decay on the same training-only split:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --schedule-task cifar10
+- To compare learning rates while keeping AdamW and cosine decay fixed:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --learning-rate-task cifar10
+- To compare weight decay while keeping AdamW, cosine decay, and the selected
+  learning rate fixed:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --weight-decay-task cifar10
+- To compare batch sizes while keeping the task's selected learning rate fixed:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --batch-size-task cifar10
+- To compare shorter/current/longer training durations with validation
+  accuracy measured after each epoch:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --training-duration-task cifar10
+- To compare training with and without task-specific spatial augmentation:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --augmentation-task cifar10
+- To compare tanh, ReLU, and GELU while keeping the training setup fixed:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --activation-task cifar10
+- To compare LayerNorm and BatchNorm with GELU and the selected training setup:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --normalization-task cifar10
+- To validate a selected final recipe on a 90/10 training-only split:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --final-recipe-task mnist
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --final-recipe-task cifar10
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --final-recipe-task imagenet32 --device mps
+  The ImageNet32 command compares augmentation on and off.
+- For the final ImageNet model, measure at several points during training,
+  including initialization, early training, midway, and the end.
+- Use the same fixed batch and eval mode each time. Analyze each residual block
+  or linear layer for:
+  * activation variance through depth;
+  * residual-branch RMS divided by input-stream RMS;
+  * RMS gradient of each weight matrix;
+  * RMS optimizer-step change divided by RMS weight value;
+  * activation saturation where relevant (for example, tanh inputs with
+    magnitude above 2).
+- Plot and explain how these quantities change with depth and training.
+- Run the ImageNet training-dynamics analysis without branch ablations with:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --device mps --dynamics-only
+- For the 5000-level ablation, run the combined ImageNet dynamics and ablation
+  analysis with:
+  PYTHONPATH=src python3 -m residual_mlp_baseline.analysis --device mps
+  (use --device cuda or --device cpu when appropriate).
+
+7. Do the 5000-level ablation study (5000 section only)
+------------------------------------------------------
+- After training your final ImageNet model, disable one residual branch at a
+  time while retaining its skip connection. Do not retrain the ablated model.
+- Evaluate each ablation on your validation split, record the accuracy drop
+  relative to the full model, and plot the drop against block depth.
+- Explain which blocks matter, whether branch-to-stream ratios predict the
+  ablation results, and what the results imply about model depth.
+
+8. Write the final report
+------------------------
+- Submit a PDF with these sections:
+  1. Final model architecture and training recipe for each task, training time,
+     and harness test accuracy beside the baseline accuracy.
+  2. The three to five changes that helped accuracy most, supported by LOG.md.
+  3. ImageNet training-dynamics analysis and figures; include the ablation
+     study if you are in the 5000-level section.
+  4. Approaches that did not work and your best explanation of why.
+  5. How the three task-specific models differ and what this shows about MLPs
+     for images.
+  6. Explanations for techniques beyond the class basics.
+- Include at least one figure comparing training curves, such as baseline and
+  final CIFAR-10.
+
+9. Final verification and submission
+------------------------------------
+- Before the deadline, run the complete harness on your final repository
+  version from a fresh environment. Confirm package installation, successful
+  training for all tasks, valid probability output shapes, and final accuracy.
+- Do not commit data/ or other large downloaded datasets.
+- Submit to Canvas:
+  1. The public GitHub repository URL. The last commit before the deadline is
+     graded; provide a commit hash if you want an earlier one graded instead.
+  2. The final report PDF.
+
+Experiment roadmap: changes to try in order
+-------------------------------------------
+Use this as a suggested sequence, not a required checklist. Use a training-only
+validation split, keep the seed and evaluation protocol fixed, and record every
+changed setting and result in LOG.md. Change one main factor at a time so you
+can tell what caused the result. Repeat the best settings across seeds if time
+allows.
+
+| Order | Experiment | What to change | Keep fixed / compare |
+|------:|------------|----------------|----------------------|
+| 1 | Baseline reference | Run the starter SGD setup unchanged on each task. | Save loss curves, validation accuracy, and training time. |
+| 2 | Optimizer | Try AdamW instead of SGD, initially without changing the schedule. | Same model, learning rate chosen for that optimizer, batch size, epochs, and split. |
+| 3 | Learning-rate schedule | Compare constant learning rate with cosine decay; optionally test warmup or step decay. | Keep optimizer and all other settings fixed. |
+| 4 | Learning rate | Try a small range around the best optimizer/schedule rate, such as half and twice the current rate. | Change only the initial learning rate. |
+| 5 | Weight decay | Compare no decay and a small range, for example 1e-5, 1e-4, and 1e-3. | Keep optimizer, schedule, and architecture fixed. |
+| 6 | Batch size | Compare nearby batch sizes that fit available memory. | Adjust learning rate only if needed; record any adjustment explicitly. |
+| 7 | Training duration | Try more or fewer epochs and examine validation accuracy and loss by epoch. | Keep the selected recipe fixed; stop based on validation behavior, not test scores. |
+| 8 | Data augmentation | MNIST: mild shifts/rotations. CIFAR-10/ImageNet32: random crop and horizontal flip. | Apply transforms only during training; compare against no augmentation. |
+| 9 | Activation | Compare tanh with ReLU or GELU. | Same architecture, initialization where appropriate, and training recipe. |
+| 10 | Normalization | Compare LayerNorm with another allowed normalization, such as BatchNorm. | Keep depth, width, activation, and optimizer fixed. |
+| 11 | Initialization | Compare Xavier with another suitable initialization or smaller residual-branch final-layer weights. | Keep all other model and recipe settings fixed; monitor stability and gradients. |
+| 12 | Width / hidden expansion | Try narrower or wider hidden dimensions. | Keep depth and recipe fixed; check runtime and memory as well as validation accuracy. |
+| 13 | Depth | Compare fewer or more residual blocks with the selected width. | Keep the training recipe fixed; use dynamics analysis to see whether added blocks contribute. |
+| 14 | Regularization | Try dropout or label smoothing, one at a time. | Compare train-versus-validation loss and accuracy to determine whether overfitting changes. |
+| 15 | Image representation | Try allowed patch/grouped-pixel input or linear mixing strategies. | Keep the model a residual MLP; explain the representation and compare with flattening. |
+| 16 | Task-specific recipe | Once individual effects are understood, choose different settings for MNIST, CIFAR-10, and ImageNet32. | Log the exact final recipe per task and validate each on its own training-only split. |
+| 17 | Test-time augmentation | For the final chosen model, optionally average predictions for allowed transformed views. | Do not train extra models or form an ensemble; verify probability rows still sum to 1. |
+
+After the roadmap, run the final harness once on the chosen submission and
+record its test accuracy and training time as final evaluation only. Do not use
+those test results to choose additional experiments.

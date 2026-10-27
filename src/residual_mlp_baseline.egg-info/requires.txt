@@ -1,0 +1,5 @@
+torch>=2.0
+
+[analysis]
+numpy>=1.23
+matplotlib>=3.7

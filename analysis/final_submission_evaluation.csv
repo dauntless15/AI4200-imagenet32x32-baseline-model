@@ -1,0 +1,4 @@
+task,device,seed,activation,normalization,learning_rate,weight_decay,batch_size,epochs,augmentation,training_examples,test_examples,test_accuracy,final_train_loss,training_seconds,probability_shape,max_probability_row_sum_error
+mnist,cpu,0,gelu,batchnorm,0.001,0.0001,256,10,False,60000,10000,0.9854,0.003838670603806774,40.59483270900091,"(10000, 10)",2.384185791015625e-07
+cifar10,cpu,0,gelu,batchnorm,0.0005,0.0001,256,15,True,50000,10000,0.58,1.1841026307678222,53.93829325000115,"(10000, 10)",2.384185791015625e-07
+imagenet32,mps,0,gelu,layernorm,0.001,0.0001,256,10,True,1281167,50000,0.1026,4.964924204830731,1201.7852750840102,"(50000, 1000)",3.5762786865234375e-07

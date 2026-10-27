@@ -1,0 +1,3 @@
+task,augmentation,activation,normalization,learning_rate,weight_decay,batch_size,epochs,validation_accuracy,final_train_loss,training_seconds
+imagenet32,False,gelu,layernorm,0.001,0.0001,256,10,0.10102563302007556,4.296340482429823,1075.8131911249948
+imagenet32,True,gelu,layernorm,0.001,0.0001,256,10,0.11067313996690499,4.995989725098837,968.7252385000029

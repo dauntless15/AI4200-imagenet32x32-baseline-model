@@ -1,0 +1,2 @@
+task,augmentation,activation,normalization,learning_rate,weight_decay,batch_size,epochs,validation_accuracy,final_train_loss,training_seconds
+mnist,False,gelu,batchnorm,0.001,0.0001,256,10,0.985,0.003616685994107414,37.74254158300755

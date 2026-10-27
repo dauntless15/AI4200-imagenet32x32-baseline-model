@@ -1,0 +1,2 @@
+task,augmentation,activation,normalization,learning_rate,weight_decay,batch_size,epochs,validation_accuracy,final_train_loss,training_seconds
+cifar10,True,gelu,batchnorm,0.0005,0.0001,256,15,0.5802,1.1972737013498942,49.62810683299904

@@ -7,5 +7,8 @@ name = "residual-mlp-baseline"
 version = "0.1.0"
 dependencies = ["torch>=2.0"]   # lower bound only, so pip keeps your existing CUDA build
 
+[project.optional-dependencies]
+analysis = ["numpy>=1.23", "matplotlib>=3.7"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

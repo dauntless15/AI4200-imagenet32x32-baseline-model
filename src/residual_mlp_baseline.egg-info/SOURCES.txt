@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/residual_mlp_baseline/__init__.py
+src/residual_mlp_baseline/analysis.py
+src/residual_mlp_baseline/model.py
+src/residual_mlp_baseline/train.py
+src/residual_mlp_baseline.egg-info/PKG-INFO
+src/residual_mlp_baseline.egg-info/SOURCES.txt
+src/residual_mlp_baseline.egg-info/dependency_links.txt
+src/residual_mlp_baseline.egg-info/requires.txt
+src/residual_mlp_baseline.egg-info/top_level.txt

@@ -1,0 +1,16 @@
+data/
+analysis/*
+!analysis/cifar10_baseline_vs_final_training_curves.png
+!analysis/cifar10_final_recipe_training.csv
+!analysis/cifar10_final_recipe_validation_results.csv
+!analysis/final_submission_training_curves.png
+!analysis/final_submission_evaluation.csv
+!analysis/imagenet32_final_recipe_training.csv
+!analysis/imagenet32_dynamics.csv
+!analysis/imagenet32_dynamics.png
+!analysis/imagenet32_final_recipe_validation_results.csv
+!analysis/mnist_final_recipe_training.csv
+!analysis/mnist_final_recipe_validation_results.csv
+__pycache__/
+*.py[cod]
+.venv/
