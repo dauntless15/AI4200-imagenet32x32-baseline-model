@@ -505,5 +505,19 @@ selection and were not used for further tuning. Prediction shapes were
 errors from 1.0 were 2.38e-7, 2.38e-7, and 3.58e-7, respectively. Full
 results are in `analysis/final_submission_evaluation.csv`; individual final
 loss histories are in `analysis/*_final_submission_training.csv`.
-This was a local API evaluation, not a fresh-environment run of the course
-notebook harness. Run that harness once before submission.
+This was a local API evaluation. The course harness was subsequently rerun
+from a restarted kernel using the GitHub package; its end-to-end results are
+recorded below and in `results.csv`.
+
+### Restarted-kernel course harness verification — 2026-10-26
+
+Restarted the notebook kernel, reinstalled the package from
+`git+https://github.com/dauntless15/AI4200-imagenet32x32-baseline-model.git`,
+and ran all three tasks with seed 0. The MNIST, CIFAR-10, and ImageNet32
+training runs completed for 10, 15, and 10 epochs, respectively. The harness
+reported 98.54% MNIST accuracy in 0.7 minutes, 58.00% CIFAR-10 accuracy in
+0.9 minutes, and 10.23% ImageNet32 accuracy in 14.7 minutes. Its shape and
+probability-row-sum assertions passed for every task; the results were written
+to `results.csv`. These are final test-set evaluations after recipe selection,
+not inputs to further tuning. Timings differ from earlier local API tests and
+should be understood as environment-specific.
